@@ -18,7 +18,7 @@ projectRouter.post(
             }
 
             // req 에서 데이터 가져오기
-            const user_id = req.currentUserId;
+            const user_id = req.body.user_id;
             const title = req.body.title;
             const description = req.body.description ?? null;
             const result = req.body.result ?? null;
@@ -52,8 +52,8 @@ projectRouter.get(
     login_required,
     async function (req, res, next) {
         try {
-            // jwt토큰에서 추출된 사용자 id를 가지고 db에서 사용자 정보를 찾음.
-            const user_id = req.currentUserId;
+            // 경로에 있는 user_id 가져오기.
+            const user_id = req.params.user_id;
             const currentProjectInfo = await projectService.getProjectInfo({
                 user_id,
             });
