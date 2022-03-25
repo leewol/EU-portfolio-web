@@ -19,15 +19,18 @@ const ProjectSchema = new Schema(
             required: false,
             default: "",
         },
+        result: {
+            type: String,
+            required: false,
+            default: "",
+        },
         from_date: {
-            type: Date,
-            required: true,
-            default: Date(),
+            type: String,
+            required: false,
         },
         to_date: {
-            type: Date,
-            required: true,
-            default: Date(),
+            type: String,
+            required: false,
         },
     },
     {
