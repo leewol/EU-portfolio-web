@@ -19,8 +19,8 @@ const certificateSchema = new Schema(
             required: false,  //! 자격증의 경우 이름 그 자체가 설명의 전부인 경우가 있어서 false!
         },
         expired_date: {
-            type: String,
-            required: false,
+            type: Date,
+            required: true,    //! 구글링을 통해 일단 Date를 쓰긴 했는데 이상하다 싶으면 다른걸로 바꿀 것.
         },
     },
     {

@@ -22,14 +22,6 @@ const educationSchema = new Schema(
             type: String,
             required: true,
         },
-        from_date: {
-            type: String,
-            required: true,
-        },
-        to_date: {
-            type: String,
-            required: true,
-        },
     },
     { timestamps: true },
 );
