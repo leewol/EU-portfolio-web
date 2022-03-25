@@ -6,15 +6,21 @@ import { EducationService } from "../services/educationService";
 const educationRouter = Router();
 educationRouter.use(login_required);
 
-educationRouter.post("/educations", async (req, res, next) => {
+educationRouter.post("/education/create", async (req, res, next) => {
     try {
         if (is.emptyObject(req.body)) {
-            throw new Error(
+            throw new Erorr(
                 "Content-Type을 application/json으로 설정해주세요.",
             );
         }
 
-        const newEdu = await EducationService.createEdu(req.body);
+        const { user_id, school, major, position } = req.body;
+        const newEdu = await EducationService.createEdu({
+            user_id,
+            school,
+            major,
+            position,
+        });
 
         res.status(201).json(newEdu);
     } catch (err) {
@@ -62,9 +68,7 @@ educationRouter.put("/educations/:id", async (req, res, next) => {
         const school = req.body.school ?? null;
         const major = req.body.major ?? null;
         const position = req.body.position ?? null;
-        const from_date = req.body.from_date ?? null;
-        const to_date = req.body.to_date ?? null;
-        const updateValue = { school, major, position, from_date, to_date };
+        const updateValue = { school, major, position };
         const updatedEdu = await EducationService.updateEdu({
             education_id,
             updateValue,

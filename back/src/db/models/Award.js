@@ -20,13 +20,13 @@ class Award {
         const update = { [fieldToUpdate]: value };
         const option = { returnOriginal: false };
 
-        const updatedAward = await AwardModel.findOneAndUpdate(
+        const updatedUser = await AwardModel.findOneAndUpdate(
             filter,
             update,
             option,
         );
 
-        return updatedAward;
+        return updatedUser;
     }
 
     static async findByUserId({ user_id }) {
