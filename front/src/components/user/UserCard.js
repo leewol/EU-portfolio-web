@@ -1,51 +1,104 @@
-import { useNavigate } from "react-router-dom";
-import { Card, Row, Button, Col } from "react-bootstrap";
+import React, { useState, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Card, Row, Col } from "react-bootstrap";
+
+import EmailForm from "./EmailForm";
+import ThemeContext  from "../Theme";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import "./UserCard.css";
 
 function UserCard({ user, setIsEditing, isEditable, isNetwork }) {
-  const navigate = useNavigate();
-  return (
-    <Card className="mb-2 ms-3 mr-5" style={{ width: "18rem" }}>
-      <Card.Body>
-        <Row className="justify-content-md-center">
-          <Card.Img
-            style={{ width: "10rem", height: "8rem" }}
-            className="mb-3"
-            src="http://placekitten.com/200/200"
-            alt="랜덤 고양이 사진 (http://placekitten.com API 사용)"
-          />
-        </Row>
-        <Card.Title>{user?.name}</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">{user?.email}</Card.Subtitle>
-        <Card.Text>{user?.description}</Card.Text>
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const { theme } = useContext(ThemeContext);
+    const navigate = useNavigate();
+    const handleClose = () => setShowEmailForm(false);
 
-        {isEditable && (
-          <Col>
-            <Row className="mt-3 text-center text-info">
-              <Col sm={{ span: 20 }}>
-                <Button
-                  variant="outline-info"
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                >
-                  편집
-                </Button>
-              </Col>
-            </Row>
-          </Col>
-        )}
+    function EmailHandler(event) {
+        event.preventDefault();
 
-        {isNetwork && (
-          <Card.Link
-            className="mt-3"
-            href="#"
-            onClick={() => navigate(`/users/${user.id}`)}
-          >
-            포트폴리오
-          </Card.Link>
-        )}
-      </Card.Body>
-    </Card>
-  );
+        setShowEmailForm(true);
+    }
+
+    return (
+        <>
+            {!isNetwork ? (
+                <div className="usercard">
+                    <img
+                        className="usercard-img"
+                        src={user?.image_url}
+                        alt="불러오기 실패"
+                    />
+                    <div className="usercard-name">{user?.name}</div>
+
+                    {isEditable ? (
+                        <div className="usercard-email">{user?.email}</div>
+                    ) : (
+                        <a
+                            className="usercard-email"
+                            href="#"
+                            onClick={EmailHandler}
+                        >
+                            {user?.email}
+                        </a>
+                    )}
+
+                    <div className="usercard-description">
+                        {user?.description}
+                    </div>
+
+                    <EmailForm
+                        userEmail={user?.email}
+                        toName={user?.name}
+                        handleClose={handleClose}
+                        show={showEmailForm}
+                    />
+
+                    {isEditable && (
+                        <FontAwesomeIcon
+                            className="fontawesome-icon edit-pen"
+                            onClick={() => setIsEditing(true)}
+                            icon={faPenToSquare}
+                        />
+                    )}
+                </div>
+            ) : (
+                <div className="network-usercard-box">
+                    <Card style={{ height: "200px", width: "1000px" }}>
+                        <div className={`network-usercard ${theme}`}>
+                            <img
+                                className="usercard-img"
+                                src={user?.image_url}
+                                alt="불러오기 실패"
+                            />
+
+                            <div className="network-usercard__texts">
+                                <div className="network-usercard__name">
+                                    {user?.name}
+                                </div>
+
+                                <div className="usercard-email">
+                                    {user?.email}
+                                </div>
+
+                                <div className="network-usercard__description">
+                                    {user?.description}
+                                </div>
+                            </div>
+
+                            <div
+                                className="network-usercard__port-link"
+                                onClick={() => navigate(`/users/${user.id}`)}
+                            >
+                                <span>포트폴리오</span>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            )}
+        </>
+    );
 }
 
 export default UserCard;

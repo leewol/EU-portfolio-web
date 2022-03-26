@@ -6,33 +6,41 @@ import { EducationService } from "../services/educationService";
 const educationRouter = Router();
 educationRouter.use(login_required);
 
-educationRouter.post("/education/create", async (req, res, next) => {
+educationRouter.post("/", async (req, res, next) => {
     try {
         if (is.emptyObject(req.body)) {
             throw new Erorr(
                 "Content-Type을 application/json으로 설정해주세요.",
             );
         }
+        const { user_id, school, major, position, from_date, to_date } =
+            req.body;
 
-        const { user_id, school, major, position } = req.body;
-        const newEdu = await EducationService.createEdu({
+        if (user_id !== req.currentUserId) {
+            throw new Error("접근권한이 없는 유저입니다.");
+        }
+
+        const newEducation = await EducationService.createEducation({
             user_id,
             school,
             major,
             position,
+            from_date,
+            to_date,
         });
 
-        res.status(201).json(newEdu);
+        res.status(201).json(newEducation);
     } catch (err) {
         next(err);
     }
 });
 
-// * education 상세정보 조회
-educationRouter.get("/educations/:id", async (req, res, next) => {
+educationRouter.get("/:id", async (req, res, next) => {
     try {
         const education_id = req.params.id;
-        const education = await EducationService.getEduById({ education_id });
+        const education = await EducationService.getEducationById({
+            education_id,
+        });
 
         if (education.errorMessage) {
             throw new Error(education.errorMessage);
@@ -44,10 +52,17 @@ educationRouter.get("/educations/:id", async (req, res, next) => {
     }
 });
 
-// * education 정보 삭제
-educationRouter.delete("/educations/:id", async (req, res, next) => {
+educationRouter.delete("/:id", async (req, res, next) => {
     try {
         const education_id = req.params.id;
+        const education = await EducationService.getEducationById({
+            education_id,
+        });
+
+        if (education.user_id !== req.currentUserId) {
+            throw new Error("접근권한이 없는 유저입니다.");
+        }
+
         const deletedEducation = await EducationService.deleteEducation({
             education_id,
         });
@@ -62,29 +77,39 @@ educationRouter.delete("/educations/:id", async (req, res, next) => {
     }
 });
 
-educationRouter.put("/educations/:id", async (req, res, next) => {
+educationRouter.put("/:id", async (req, res, next) => {
     try {
         const education_id = req.params.id;
+        const education = await EducationService.getEducationById({
+            education_id,
+        });
+
+        if (education.user_id !== req.currentUserId) {
+            throw new Error("접근권한이 없는 유저입니다.");
+        }
+
         const school = req.body.school ?? null;
         const major = req.body.major ?? null;
         const position = req.body.position ?? null;
-        const updateValue = { school, major, position };
-        const updatedEdu = await EducationService.updateEdu({
+        const from_date = req.body.from_date ?? null;
+        const to_date = req.body.to_date ?? null;
+        const updateValue = { school, major, position, from_date, to_date };
+        const updatedEducation = await EducationService.updateEducation({
             education_id,
             updateValue,
         });
 
-        if (updatedEdu.errorMessage) {
-            throw new Error(updatedEdu.errorMessage);
+        if (updatedEducation.errorMessage) {
+            throw new Error(updatedEducation.errorMessage);
         }
 
-        res.status(200).json(updatedEdu);
+        res.status(200).json(updatedEducation);
     } catch (err) {
         next(err);
     }
 });
 
-educationRouter.get("/educationlist/:user_id", async (req, res, next) => {
+educationRouter.get("/list/:user_id", async (req, res, next) => {
     try {
         const user_id = req.params.user_id;
         const educationList = await EducationService.getEduListByUserId({

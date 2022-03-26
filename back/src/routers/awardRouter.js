@@ -6,10 +6,7 @@ import { AwardService } from "../services/awardService";
 const awardRouter = Router();
 awardRouter.use(login_required);
 
-// 수상이력 생성
-// REST API 규칙에 맞게 작성하려면 create같은 단어는 빼기(이미 post method에 해당 의미를 담고 있다)
-// 그냥 "/award"만
-awardRouter.post("/award/create", async (req, res, next) => {
+awardRouter.post("/", async (req, res, next) => {
     try {
         if (is.emptyObject(req.body)) {
             throw new Error(
@@ -17,11 +14,17 @@ awardRouter.post("/award/create", async (req, res, next) => {
             );
         }
 
-        const { user_id, title, description } = req.body;
+        const { user_id, title, description, when_date } = req.body;
+
+        if (user_id !== req.currentUserId) {
+            throw new Error("접근권한이 없는 유저입니다.");
+        }
+
         const newAward = await AwardService.createAward({
             user_id,
             title,
             description,
+            when_date,
         });
 
         res.status(201).json(newAward);
@@ -30,8 +33,7 @@ awardRouter.post("/award/create", async (req, res, next) => {
     }
 });
 
-// 수상이력 조회(id)
-awardRouter.get("/awards/:id", async (req, res, next) => {
+awardRouter.get("/:id", async (req, res, next) => {
     try {
         const award_id = req.params.id;
         const award = AwardService.getAwardById({ award_id });
@@ -46,10 +48,15 @@ awardRouter.get("/awards/:id", async (req, res, next) => {
     }
 });
 
-// 수상이력 수정
-awardRouter.put("/awards/:id", async (req, res, next) => {
+awardRouter.put("/:id", async (req, res, next) => {
     try {
         const award_id = req.params.id;
+        const award = await AwardService.getAwardById({ award_id });
+
+        if (award.user_id !== req.currentUserId) {
+            throw new Error("접근권한이 없는 유저입니다.");
+        }
+
         const title = req.body.title ?? null;
         const description = req.body.description ?? null;
         const updateValue = { title, description };
@@ -68,11 +75,14 @@ awardRouter.put("/awards/:id", async (req, res, next) => {
     }
 });
 
-// 수상이력 삭제
-awardRouter.delete("/awards/:id", async (req, res, next) => {
+awardRouter.delete("/:id", async (req, res, next) => {
     try {
         const award_id = req.params.id;
-        console.log(award_id);
+        const award = await AwardService.getAwardById({ award_id });
+        if (award.user_id !== req.currentUserId) {
+            throw new Error("접근권한이 없는 유저입니다.");
+        }
+
         const deletedAward = await AwardService.deleteAward({ award_id });
 
         if (deletedAward.errorMessage) {
@@ -85,8 +95,7 @@ awardRouter.delete("/awards/:id", async (req, res, next) => {
     }
 });
 
-// 특정 유저의 수상이력 리스트 조회
-awardRouter.get("/awardlist/:user_id", async (req, res, next) => {
+awardRouter.get("/list/:user_id", async (req, res, next) => {
     try {
         const user_id = req.params.user_id;
         const awardList = await AwardService.getAwardListByUserId({ user_id });
