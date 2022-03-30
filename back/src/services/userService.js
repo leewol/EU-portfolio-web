@@ -1,6 +1,6 @@
 import { User } from "../db"; // from을 폴더(db) 로 설정 시, 디폴트로 index.js 로부터 import함.
 import { Checker } from "../utils/checker"; //*New!
-import { addBlockedToken, deleteBlockedToken } from "../middlewares/TokenBlackList"; //*New!
+import { addBlockedToken } from "../middlewares/TokenBlackList"; //*New!
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
@@ -166,7 +166,7 @@ class userAuthService {
         }
 
         await addBlockedToken({ userToken }); 
-        //! 애러메시지 뒤에 냅둔 이유는 쓸모없는 데이터소모량을 줄이기 위함.
+        //! 애러메시지 뒤에 냅둔 이유는 만일에 대비해서 + 쓸모없는 데이터소모량을 줄이기 위함.
 
         return deletedUser;
     }
@@ -177,4 +177,5 @@ class userAuthService {
         return registerBlockedToken;
     }
 }
+
 export { userAuthService };

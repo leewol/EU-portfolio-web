@@ -54,6 +54,10 @@ userAuthRouter.post("/login", async (req, res, next) => {
 userAuthRouter.post("/logout", addTokenBlackList, async (req, res, next) => {
     try {
         const userToken = req.headers["authorization"]?.split(" ")[1] ?? "null";
+        //* delete와 다르게 로그아웃은 정보가 삭제되는 것이 아니기 때문에 
+        //* req로 받은 유저와 토큰상의 유저정보를 비교하지 않았음. 
+        //* 필요시 user_id를 프론트에 요청후 비교하는 과정을 추가할 것!
+
         const token = await userAuthService.logoutUser({ userToken });
 
         if (!token) {
@@ -229,7 +233,7 @@ userAuthRouter.get(
         } catch (error) {
             next(error);
         }
-    },
+    }
 );
 
 export { userAuthRouter };

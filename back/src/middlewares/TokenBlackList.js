@@ -25,13 +25,24 @@ async function addBlockedToken({ userToken }) {
     return token;
 }
 
-async function deleteBlockedToken({ userToken }) {
-    const token = await TokenModel.deleteOne({ token: userToken });
-    return token;
-}
+async function checkAndDeleteBlockedToken() {
+    const tokens = await TokenModel.find({});  //* TokenBlackList에 올라와있는 토큰 찾기.
+    
+    const deleteBlockedToken = [];
+    tokens.map(token => {
+        if (new Date() - token.id >21600*1000) {
+            deleteBlockedToken.push(token.Token);
+        }
+    }); //* 실행될 때의 시간과 비교해서 6시간이 지났을 경우 삭제할 토큰의 목록을 뽑음.
+
+    deleteBlockedToken.map(async Token => {
+        await TokenModel.deleteOne({ Token });
+    });  //* 토큰 삭제.
+}  //* db의 index.js에서 서버에 연결이 되었을 때 기준으로 24시간마다 실행.. 
+//! 1. 현재 체크하진 못함.
+//! 2. 원시적인 방법이라 생각되고, 추후 더 생각해볼 것! (redis 공부해서 만들어보기.)
 
 // ==========================================================
-
 const addTokenBlackList = async (req,res,next) => {
     try {
         // request 헤더로부터 authorization bearer 토큰을 받음.
@@ -53,4 +64,4 @@ const addTokenBlackList = async (req,res,next) => {
     }
 };
 
-export { TokenModel, addBlockedToken, addTokenBlackList, deleteBlockedToken };
+export { TokenModel, addBlockedToken, addTokenBlackList, checkAndDeleteBlockedToken };
