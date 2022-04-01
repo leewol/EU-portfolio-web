@@ -155,6 +155,18 @@ class userAuthService {
         return searchingUser;
     }
 
+    static async getUsersWithRestrict3({ pieceword, Model }) {
+        const searchingUsers = await Checker
+            .findAllAndFilteredByCondition(pieceword, Model);
+
+        if (!searchingUsers) {
+            const errorMessage = "검색조건에 부합하는 유저가 없습니다.";
+            return { errorMessage };
+        } //* 이메일로 검색.
+
+        return searchingUsers;
+    }
+
     static async deleteUser({ userToken, user_id }) {
         const deletedUser = await User.deleteById({ user_id });
         await Checker.deleteChild({ user_id });  

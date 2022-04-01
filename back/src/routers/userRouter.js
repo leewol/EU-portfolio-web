@@ -142,39 +142,6 @@ userAuthRouter.get("/:id", login_required, addTokenBlackList, async (req, res, n
     }
 });
 
-userAuthRouter.get(
-    "/list/:type/:pieceword",
-    login_required,
-    async (req, res, next) => {
-        try {
-            const Model = req.params.type;
-            const pieceword = req.params.pieceword;
-
-            let resultList;
-            const modelName = ["Other", "Eaducation", "Certificate", "Award", "Project", "About"];
-            if (Model === "user_name") {
-                resultList = await userAuthService.getUsersWithRestrict({
-                    pieceword,
-                }); //* 이름검색 완료
-            } else if (Model === "user_email") {
-                resultList = await userAuthService.getUsersWithRestrict2({
-                    pieceword,
-                }); //* 이메일검색 완료
-            } else if (modelName.includes(Model)) {
-                const errorMessage = " 추후 구현할 예정입니다.";
-                res.status.json(errorMessage);
-            } else {
-                const errorMessage = "검색하려는 정확한 타입을 골라주세요.";
-                res.status(400).json(errorMessage);
-            }
-
-            res.status(200).json(resultList);
-        } catch (error) {
-            next(error);
-        }
-    }
-);
-
 userAuthRouter.delete("/:id", login_required, addTokenBlackList, async (req, res, next) => {
     try {
         const user_id = req.params.id;
@@ -206,12 +173,12 @@ userAuthRouter.get(
 
             let resultList;
             const modelName = [
-                "Other",
-                "Eaducation",
-                "Certificate",
-                "Award",
-                "Project",
-                "About",
+                "other",
+                "eaducation",
+                "certificate",
+                "award",
+                "project",
+                "about",
             ];
             if (Model === "user_name") {
                 resultList = await userAuthService.getUsersWithRestrict({
@@ -222,10 +189,15 @@ userAuthRouter.get(
                     pieceword,
                 }); //* 이메일검색 완료
             } else if (modelName.includes(Model)) {
-                const errorMessage = " 추후 구현할 예정입니다.";
-                res.status.json(errorMessage);
+                // resultList = await userAuthService.getUsersWithRestrict3({
+                //     pieceword,
+                //     Model,
+                // });  //!관계를 우선 만들어볼 것!... 그 후 삭제도 같이 바꿔볼까??
+                const errorMessage = "근시일 내로 완성될 예정입니다. 추후 업데이트를 기다려주세요.";
+                res.status(400).json(errorMessage);
             } else {
-                const errorMessage = "검색하려는 정확한 타입을 골라주세요.";
+                const errorMessage = "type에 정확한 (소문자)모델명을 적어주세요.";
+                
                 res.status(400).json(errorMessage);
             }
 
